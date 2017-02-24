@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 //#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -43,11 +43,11 @@ private:
 	float CaloHadEnergy[10000];
 	float CaloEmEnergy[10000];
 	float CaloEnergy[10000];
-	bool CaloIsHF[10000];
-	bool CaloIsHB[10000];
-	bool CaloIsHE[10000];
-	bool CaloIsEB[10000];
-	bool CaloIsEE[10000];
+	int CaloHFHits[10000];
+	int CaloHBHits[10000];
+	int CaloHEHits[10000];
+	int CaloEBHits[10000];
+	int CaloEEHits[10000];
 	
 	edm::Service<TFileService> mFileServer;
 	TTree* CaloTree;

@@ -18,11 +18,11 @@ void UPCCalEnergyAnalyzer::beginJob(){
 	CaloTree->Branch("CaloEmEnergy",CaloEmEnergy,"CaloEnergyEm[CaloSize]/F");
 	CaloTree->Branch("CaloEta",CaloEta,"CaloEta[CaloSize]/F");
 	CaloTree->Branch("CaloPhi",CaloPhi,"CaloPhi[CaloSize]/F");
-	CaloTree->Branch("CaloIsHF",CaloIsHF,"CaloIsHF[CaloSize]/O");
-	CaloTree->Branch("CaloIsHB",CaloIsHB,"CaloIsHB[CaloSize]/O");
-	CaloTree->Branch("CaloIsHE",CaloIsHE,"CaloIsHE[CaloSize]/O");
-	CaloTree->Branch("CaloIsEE",CaloIsEE,"CaloIsEE[CaloSize]/O");
-	CaloTree->Branch("CaloIsEB",CaloIsEB,"CaloIsEB[CaloSize]/O");
+  CaloTree->Branch("CaloHFHits",CaloHFHits,"CaloHFHits[CaloSize]/I");
+  CaloTree->Branch("CaloHBHits",CaloHBHits,"CaloHBHits[CaloSize]/I");
+  CaloTree->Branch("CaloHEHits",CaloHEHits,"CaloHEHits[CaloSize]/I");
+  CaloTree->Branch("CaloEEHits",CaloEEHits,"CaloEEHits[CaloSize]/I");
+  CaloTree->Branch("CaloEBHits",CaloEBHits,"CaloEBHits[CaloSize]/I");
 }
 
 
@@ -40,26 +40,39 @@ void UPCCalEnergyAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup
 			CaloEta[CaloSize]=calt->eta();
 			CaloPhi[CaloSize]=calt->phi();
 
-			CaloIsHF[CaloSize]=0;
-			CaloIsHB[CaloSize]=0;
-			CaloIsHE[CaloSize]=0;
-			CaloIsEE[CaloSize]=0;
-			CaloIsEB[CaloSize]=0;
+      CaloHFHits[CaloSize] = 0;
+      CaloHBHits[CaloSize] = 0;
+      CaloHEHits[CaloSize] = 0;
+      CaloEEHits[CaloSize] = 0;
+      CaloEBHits[CaloSize] = 0;
 
-			vector<DetId> detIds=calt->constituents();	
-			for(unsigned i=0; i < detIds.size(); i++){
-				HcalDetId hcalDetId((detIds[i].det()==DetId::Hcal)?HcalDetId(detIds[i]):HcalDetId()); 
+      vector<DetId> detIds = calt->constituents();
+      const vector<DetId>::const_iterator end = detIds.end();
+      for (vector<DetId>::const_iterator it = detIds.begin(); it != end; ++it) {
+        if (it->det() == DetId::Hcal) {
+          // HCAL
+          HcalSubdetector subdet = (HcalSubdetector) it->subdetId();
 
-				CaloIsHF[CaloSize]=(CaloIsHF[CaloSize]||
-						(hcalDetId.subdet()==HcalForward&&detIds[i].det()==DetId::Hcal))?1:0;
-				CaloIsHB[CaloSize]=(CaloIsHB[CaloSize]||
-						(hcalDetId.subdet()==HcalBarrel&&detIds[i].det()==DetId::Hcal))?1:0;
-				CaloIsHE[CaloSize]=(CaloIsHE[CaloSize]||
-						(hcalDetId.subdet()==HcalEndcap&&detIds[i].det()==DetId::Hcal))?1:0;
-				CaloIsEB[CaloSize]=(CaloIsEB[CaloSize]||
-						(EcalSubdetector(detIds[i].subdetId())==EcalBarrel&&detIds[i].det()==DetId::Ecal))?1:0;
-				CaloIsEE[CaloSize]=(CaloIsEE[CaloSize]||
-						(EcalSubdetector(detIds[i].subdetId())==EcalEndcap&&detIds[i].det()==DetId::Ecal))?1:0;
+          if (subdet == HcalForward) {
+            CaloHFHits[CaloSize]++;
+          }
+          if (subdet == HcalBarrel) {
+            CaloHBHits[CaloSize]++;
+          }
+          if (subdet == HcalEndcap) {
+            CaloHEHits[CaloSize]++;
+          }
+        } else if (it->det() == DetId::Ecal) {
+          // ECAL
+          EcalSubdetector subdet = (EcalSubdetector) it->subdetId();
+
+          if (subdet == EcalBarrel) {
+            CaloEBHits[CaloSize]++;
+          }
+          if (subdet == EcalEndcap) {
+            CaloEEHits[CaloSize]++;
+          }
+        }
 			}
 
 			CaloSize++;
